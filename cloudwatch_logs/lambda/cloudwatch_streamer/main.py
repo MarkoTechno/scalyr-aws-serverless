@@ -37,6 +37,8 @@ from base64 import b64decode
 # Number of unique ENVIRONMENT_ID's == concurrent lambda invocations
 ENVIRONMENT_ID = uuid4().hex
 
+LOG_MAX_SIZE = 49900
+
 DEBUG = os.environ.get('DEBUG')
 LOGGER = logging.getLogger()
 if DEBUG == 'true':
@@ -548,14 +550,19 @@ def build_post_data(message):
         if not sampler.process_line(logEvent['message']):
             continue
         (log_line, redacted) = redactor.process_line(logEvent['message'])
-        if not 'timestamp' in logEvent or not 'prefix_timestamp' in options or not options['prefix_timestamp']:
-            ts = ""
-        else:
-            ts = str(logEvent['timestamp']) + " "
-        if log_line.endswith('\n'):
-            post_data += ts + log_line
-        else:
-            post_data += ts + log_line + '\n'
+
+        # We do simple chunking to a size of 49900 to fit within the server's 50000 limit
+        length_limit = options.get("max_line_size", LOG_MAX_SIZE)
+        for i in range(0, len(log_line), length_limit):
+            chunked_log_line = log_line[i:i+length_limit]
+            if not 'timestamp' in logEvent or not 'prefix_timestamp' in options or not options['prefix_timestamp']:
+                ts = ""
+            else:
+                ts = str(logEvent['timestamp']) + " "
+            if chunked_log_line.endswith('\n'):
+                post_data += ts + chunked_log_line
+            else:
+                post_data += ts + chunked_log_line + '\n'
     LOGGER.debug(f"Post data: {post_data}")
     return post_data
 

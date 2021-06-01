@@ -1,3 +1,9 @@
+## 1.0.10 - TBD
+
+Misc:
+* Will now split long log lines at 49900 characters sending them as separate lines, rather than 
+allowing the server to truncate them at 50000 characters.
+
 ## 1.0.9 - July 23, 2020
 
 Bug fixes:

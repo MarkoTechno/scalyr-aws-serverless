@@ -368,6 +368,18 @@ class TestStreamer(ScalyrTestCase):
 
         self.assertEquals(streamer.build_post_data(self.message), "12345 abc\n22222 cba\n")
 
+    def test_build_post_data_over_max_size(self):
+        streamer.LOG_GROUP_OPTIONS = {"logGroup": {"prefix_timestamp": True}}
+        self.message["logEvents"][0] = {"timestamp": "22222", "message": "0123456789" * 5001}
+
+        self.assertEquals(streamer.build_post_data(self.message), "22222 " + "0123456789" * 4990 + "\n22222 " + "0123456789" * 11 + "\n")
+
+    def test_build_post_data_over_max_configured_size(self):
+        streamer.LOG_GROUP_OPTIONS = {"logGroup": {"prefix_timestamp": True, "max_line_size": 40000}}
+        self.message["logEvents"][0] = {"timestamp": "22222", "message": "0123456789" * 5001}
+
+        self.assertEquals(streamer.build_post_data(self.message), "22222 " + "0123456789" * 4000 + "\n22222 " + "0123456789" * 1001 + "\n")
+
     def test_build_params_with_server_attributes(self):
         streamer.LOG_GROUP_OPTIONS = {"logGroup": {"attributes": {"tier": "dev"}}}
         self.message["owner"] = "123456789"
