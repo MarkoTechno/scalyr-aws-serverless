@@ -1,4 +1,4 @@
-## 1.0.10 - TBD
+## 1.0.10 - June 2, 2021
 
 Misc:
 * Will now split long log lines at 49900 characters sending them as separate lines, rather than 
