@@ -9,7 +9,7 @@ Parameters:
     Description: Base URL of the Scalyr API
     Type: String
     Default: 'https://www.scalyr.com'
-    AllowedValues: ['https://www.scalyr.com', 'https://eu.scalyr.com']
+    AllowedValues: ['https://www.scalyr.com', 'https://eu.scalyr.com','https://app.us1.dataset.com','https://xdr.us1.sentinelone.net']
   WriteLogsKey:
     Description: 'Use this or WriteLogsKeyEncrypted.
                   The Scalyr API key that allows write access to Scalyr logs'
